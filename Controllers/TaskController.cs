@@ -10,6 +10,12 @@ namespace KanbanBoard.Controllers
         // In-memory storage for now (replace with database later)
         private static List<KanbanTask> _tasks = new();
 
+        [HttpGet]
+        public ActionResult<IEnumerable<KanbanTask>> GetAllTasks()
+        {
+            return Ok(_tasks);
+        }
+
         [HttpGet("{id}")]
         public ActionResult<KanbanTask> GetTask(int id)
         {
@@ -24,6 +30,34 @@ namespace KanbanBoard.Controllers
             task.Id = _tasks.Count > 0 ? _tasks.Max(t => t.Id) + 1 : 1;
             _tasks.Add(task);
             return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult PutTask(int id, [FromBody] KanbanTask task)
+        {
+            var foundTask = _tasks.FirstOrDefault(t => t.Id == id);
+            if (foundTask == null)
+            {
+                return NotFound();
+            }
+
+            foundTask.Title = task.Title;
+            foundTask.Status = task.Status;
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteTask(int id)
+        {
+            var toDelete = _tasks.FirstOrDefault(t => t.Id == id);
+            if (toDelete == null)
+            {
+                return NotFound();
+            }
+
+            _tasks.Remove(toDelete);
+            return NoContent();
         }
     }
 }
