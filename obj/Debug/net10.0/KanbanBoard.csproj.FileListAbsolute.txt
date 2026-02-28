@@ -83,3 +83,4 @@
 /Users/alexvandijck/Code/dotnet/KanbanBoard/obj/Debug/net10.0/KanbanBoard.pdb
 /Users/alexvandijck/Code/dotnet/KanbanBoard/obj/Debug/net10.0/KanbanBoard.genruntimeconfig.cache
 /Users/alexvandijck/Code/dotnet/KanbanBoard/obj/Debug/net10.0/ref/KanbanBoard.dll
+/Users/alexvandijck/Code/dotnet/KanbanBoard/obj/Debug/net10.0/KanbanBoard.sourcelink.json
