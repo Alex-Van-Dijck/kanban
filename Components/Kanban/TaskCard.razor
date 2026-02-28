@@ -1,0 +1,56 @@
+@using KanbanBoard.Models
+@using Microsoft.AspNetCore.Components
+
+<RadzenCard class="task-card">
+    <div class="task-header">
+        <span class="task-title">@Task.Title</span>
+         <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger"
+                Variant="Variant.Text" Size="ButtonSize.Small"
+                Click="@(async () => await OnDelete.InvokeAsync())" />
+    </div>
+    <div class="task-content">
+        <div class="task-actions">
+            <RadzenButton Icon="arrow_back" Size="ButtonSize.Small"
+                Click="@MoveToPreviousStatus"
+                Disabled="@IsFirstStatus" />
+            <RadzenButton Icon="arrow_forward" Size="ButtonSize.Small"
+                Click="@MoveToNextStatus"
+                Disabled="@IsLastStatus" />
+        </div>
+    </div>
+</RadzenCard>
+
+@code {
+    [Parameter]
+    public KanbanTask Task { get; set; } = null!;
+
+    [Parameter]
+    public KanbanStatus[] StatusValues { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback<KanbanStatus> OnStatusChanged { get; set; }
+
+    [Parameter]
+    public EventCallback OnDelete { get; set; }
+
+    private bool IsFirstStatus => Array.IndexOf(StatusValues, Task.Status) == 0;
+    private bool IsLastStatus => Array.IndexOf(StatusValues, Task.Status) == StatusValues.Length - 1;
+
+    private async Task MoveToPreviousStatus()
+    {
+        var currentIndex = Array.IndexOf(StatusValues, Task.Status);
+        if (currentIndex > 0)
+        {
+            await OnStatusChanged.InvokeAsync(StatusValues[currentIndex - 1]);
+        }
+    }
+
+    private async Task MoveToNextStatus()
+    {
+        var currentIndex = Array.IndexOf(StatusValues, Task.Status);
+        if (currentIndex < StatusValues.Length - 1)
+        {
+            await OnStatusChanged.InvokeAsync(StatusValues[currentIndex + 1]);
+        }
+    }
+}

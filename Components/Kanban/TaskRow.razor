@@ -1,0 +1,46 @@
+@using KanbanBoard.Models
+@using Microsoft.AspNetCore.Components
+
+<div class="kanban-column">
+    <h3 class="column-title">
+        @GetStatusLabel(Status)
+        <RadzenBadge Text="@Tasks.Count().ToString()"
+            BadgeStyle="BadgeStyle.Light" />
+    </h3>
+    <div class="tasks-list">
+        @foreach (var task in Tasks)
+        {
+            <TaskCard 
+                Task="@task"
+                StatusValues="@StatusValues"
+                OnStatusChanged="@((s) => OnStatusChanged.InvokeAsync((task, s)))"
+                OnDelete="@(() => OnDelete.InvokeAsync(task))" />
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public KanbanStatus Status { get; set; }
+
+    [Parameter]
+    public IEnumerable<KanbanTask> Tasks { get; set; } = null!;
+
+    [Parameter]
+    public KanbanStatus[] StatusValues { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback<(KanbanTask, KanbanStatus)> OnStatusChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<KanbanTask> OnDelete { get; set; }
+
+    private string GetStatusLabel(KanbanStatus status) => status switch
+    {
+        KanbanStatus.Todo => "To Do",
+        KanbanStatus.InProgress => "In Progress",
+        KanbanStatus.Done => "Done",
+        _ => status.ToString()
+    };
+}
+

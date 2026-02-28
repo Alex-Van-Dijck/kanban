@@ -1,11 +1,147 @@
 ﻿@page "/"
-@using System.Diagnostics
+@rendermode InteractiveServer
+@using System.Net.Http.Json
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using KanbanBoard.Models
+@using KanbanBoard.Components.Kanban
+@inject HttpClient Http
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Kanban Board</PageTitle>
 
-<h1>Kanban board</h1>
+<div class="kanban-header">
+    <h1>Kanban Board</h1>
+    <RadzenButton Icon="add" Text="New Task" Click="@ToggleCreateDialog"
+        ButtonStyle="ButtonStyle.Primary" />
+</div>
 
-<RadzenButton Click="@ButtonClicked" Text="Hi"></RadzenButton>
-@code {
-  void ButtonClicked(){}
+<div class="kanban-board">
+    @foreach (var status in Enum.GetValues<KanbanStatus>())
+    {
+        <TaskRow 
+            Status="@status"
+            Tasks="@GetTasksByStatus(status)"
+            StatusValues="@statusValues"
+            OnStatusChanged="@((data) => UpdateTaskStatus(data.Item1, data.Item2))"
+            OnDelete="@((task) => DeleteTask(task))" />
+    }
+</div>
+
+@if (showCreateDialog)
+{
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Task</h3>
+                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" 
+                    Variant="Variant.Text" Size="ButtonSize.Small"
+                    Click="@ToggleCreateDialog" />
+            </div>
+            <div class="modal-body">
+                <RadzenTextBox @bind-Value="@newTaskTitle" 
+                    @oninput="@((ChangeEventArgs e) => newTaskTitle = e.Value?.ToString() ?? "")"
+                    Placeholder="Enter task title..." 
+                    Style="width: 100%;" />
+            </div>
+            <div class="modal-footer">
+                <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Light"
+                    Click="@ToggleCreateDialog" />
+                <RadzenButton Text="Create" ButtonStyle="ButtonStyle.Primary"
+                    Click="@CreateTask" 
+                    Disabled="@string.IsNullOrWhiteSpace(newTaskTitle)" />
+            </div>
+        </div>
+    </div>
 }
+
+@code {
+    private List<KanbanTask> tasks = new();
+    private KanbanStatus[] statusValues = Enum.GetValues<KanbanStatus>();
+    private bool showCreateDialog = false;
+    private string newTaskTitle = "";
+
+    // JSON options to handle enum string conversion
+    private readonly JsonSerializerOptions jsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTasks();
+    }
+
+    private async Task LoadTasks()
+    {
+        try
+        {
+            tasks = await Http.GetFromJsonAsync<List<KanbanTask>>("api/kanbantasks", jsonOptions) ?? new();
+        }
+        catch
+        {
+        }
+    }
+
+    private void ToggleCreateDialog()
+    {
+        showCreateDialog = !showCreateDialog;
+        if (!showCreateDialog)
+        {
+            newTaskTitle = "";
+        }
+    }
+
+    private async Task CreateTask()
+    {
+        if (string.IsNullOrWhiteSpace(newTaskTitle))
+            return;
+
+        try
+        {
+            var newTask = new KanbanTask { Title = newTaskTitle, Status = KanbanStatus.Todo };
+            
+            var response = await Http.PostAsJsonAsync("api/kanbantasks", newTask, jsonOptions);
+
+            if (response.IsSuccessStatusCode)
+            {
+                newTaskTitle = "";
+                showCreateDialog = false;
+                await LoadTasks();
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    private async Task UpdateTaskStatus(KanbanTask task, KanbanStatus newStatus)
+    {
+        var updated = new KanbanTask { Id = task.Id, Title = task.Title, Status = newStatus };
+        var response = await Http.PutAsJsonAsync($"api/kanbantasks/{task.Id}", updated, jsonOptions);
+
+        if (response.IsSuccessStatusCode)
+        {
+            await LoadTasks();
+        }
+    }
+
+    private async Task DeleteTask(KanbanTask task)
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"api/kanbantasks/{task.Id}");
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadTasks();
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    private IEnumerable<KanbanTask> GetTasksByStatus(KanbanStatus status)
+        => tasks.Where(t => t.Status == status);
+}
+

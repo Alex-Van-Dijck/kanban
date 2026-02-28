@@ -1,0 +1,33 @@
+@inject DialogService DialogService
+
+<div style="padding: 20px; min-width: 300px;">
+    <RadzenTextBox @bind-Value="@title" 
+        Placeholder="Enter task title..." 
+        Style="width: 100%; margin-bottom: 16px;" />
+    
+    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Light"
+            Click="@Cancel" />
+        <RadzenButton Text="Create" ButtonStyle="ButtonStyle.Primary"
+            Click="@Submit" 
+            Disabled="@string.IsNullOrWhiteSpace(title)" />
+    </div>
+</div>
+
+@code {
+    private string title = "";
+
+    private void Cancel()
+    {
+        DialogService.Close(null);
+    }
+
+    private void Submit()
+    {
+        if (!string.IsNullOrWhiteSpace(title))
+        {
+            DialogService.Close(title);
+        }
+    }
+}
+

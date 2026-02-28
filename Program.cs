@@ -1,16 +1,29 @@
 using KanbanBoard.Components;
 using Radzen;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents()
-;
+    .AddInteractiveServerComponents();
 
 builder.Services.AddRadzenComponents();
 
-builder.Services.AddControllers();
+builder.Services.AddScoped(sp =>
+{
+    var navigationManager = sp.GetRequiredService<Microsoft.AspNetCore.Components.NavigationManager>();
+    return new HttpClient { BaseAddress = new Uri(navigationManager.BaseUri) };
+});
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
+
 var app = builder.Build();
 
 

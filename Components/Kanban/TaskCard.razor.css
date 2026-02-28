@@ -1,0 +1,29 @@
+.task-card {
+  padding: 0 !important;
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  width: 100%;
+}
+
+.task-header :last-child {
+  flex-shrink: 0;
+}
+
+.task-title {
+  font-weight: 500;
+  word-break: break-word;
+  text-transform: capitalize;
+  text-align: center;
+  flex: 1;
+}
+
+.task-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
