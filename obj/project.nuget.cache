@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "dgSpecHash": "1wEJNtXK7NE=",
+  "success": true,
+  "projectFilePath": "/Users/alexvandijck/Code/dotnet/KanbanBoard/KanbanBoard.csproj",
+  "expectedPackageFiles": [
+    "/Users/alexvandijck/.nuget/packages/microsoft.aspnetcore.app.internal.assets/10.0.3/microsoft.aspnetcore.app.internal.assets.10.0.3.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "message": "Error occurred while getting package vulnerability data: Access to the path '/Users/alexvandijck/.local/share' is denied.",
+      "projectPath": "/Users/alexvandijck/Code/dotnet/KanbanBoard/KanbanBoard.csproj",
+      "warningLevel": 1,
+      "filePath": "/Users/alexvandijck/Code/dotnet/KanbanBoard/KanbanBoard.csproj",
+      "targetGraphs": []
+    }
+  ]
+}
