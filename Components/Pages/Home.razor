@@ -40,6 +40,7 @@
             <div class="modal-body">
                 <RadzenTextBox @bind-Value="@newTaskTitle" 
                     @oninput="@((ChangeEventArgs e) => newTaskTitle = e.Value?.ToString() ?? "")"
+                    @onkeydown="@OnKeyDown"
                     Placeholder="Enter task title..." 
                     Style="width: 100%;" />
             </div>
@@ -114,6 +115,13 @@
         {
         }
     }
+
+      private async Task OnKeyDown(KeyboardEventArgs e){
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(newTaskTitle))
+        {
+            await CreateTask();
+        }
+      }
 
     private async Task UpdateTaskStatus(KanbanTask task, KanbanStatus newStatus)
     {
