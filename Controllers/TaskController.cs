@@ -7,19 +7,23 @@ namespace KanbanBoard.Controllers
     [Route("api/[controller]")]
     public class KanbanTasksController : ControllerBase
     {
-        // In-memory storage for now (replace with database later)
-        private static List<KanbanTask> _tasks = new();
+        private readonly TaskContext _context;
+        public KanbanTasksController(TaskContext context)
+        {
+            _context = context;
+        }
 
         [HttpGet]
         public ActionResult<IEnumerable<KanbanTask>> GetAllTasks()
         {
-            return Ok(_tasks);
+            return Ok(_context.Tasks.ToList());
         }
 
         [HttpGet("{id}")]
         public ActionResult<KanbanTask> GetTask(int id)
+
         {
-            var task = _tasks.FirstOrDefault(t => t.Id == id);
+            var task = _context.Tasks.FirstOrDefault(t => t.Id == id);
             if (task == null) return NotFound();
             return Ok(task);
         }
@@ -27,15 +31,15 @@ namespace KanbanBoard.Controllers
         [HttpPost]
         public ActionResult<KanbanTask> CreateKanbanTask(KanbanTask task)
         {
-            task.Id = _tasks.Count > 0 ? _tasks.Max(t => t.Id) + 1 : 1;
-            _tasks.Add(task);
+            _context.Tasks.Add(task);
+            _context.SaveChanges();
             return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
         }
 
         [HttpPut("{id}")]
         public IActionResult PutTask(int id, [FromBody] KanbanTask task)
         {
-            var foundTask = _tasks.FirstOrDefault(t => t.Id == id);
+            var foundTask = _context.Tasks.FirstOrDefault(t => t.Id == id);
             if (foundTask == null)
             {
                 return NotFound();
@@ -43,6 +47,7 @@ namespace KanbanBoard.Controllers
 
             foundTask.Title = task.Title;
             foundTask.Status = task.Status;
+            _context.SaveChanges();
 
             return NoContent();
         }
@@ -50,13 +55,14 @@ namespace KanbanBoard.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteTask(int id)
         {
-            var toDelete = _tasks.FirstOrDefault(t => t.Id == id);
+            var toDelete = _context.Tasks.FirstOrDefault(t => t.Id == id);
             if (toDelete == null)
             {
                 return NotFound();
             }
 
-            _tasks.Remove(toDelete);
+            _context.Tasks.Remove(toDelete);
+            _context.SaveChanges();
             return NoContent();
         }
     }
