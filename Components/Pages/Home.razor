@@ -42,6 +42,12 @@
                     @oninput="@((ChangeEventArgs e) => newTaskTitle = e.Value?.ToString() ?? "")"
                     @onkeydown="@OnKeyDown"
                     Placeholder="Enter task title..." 
+                    Style="width: 100%;
+                            margin-bottom: 8px;" />
+                <RadzenTextBox @bind-Value="@newTaskDesc" 
+                    @oninput="@((ChangeEventArgs e) => newTaskDesc = e.Value?.ToString() ?? "")"
+                    @onkeydown="@OnKeyDown"
+                    Placeholder="Enter task description..." 
                     Style="width: 100%;" />
             </div>
             <div class="modal-footer">
@@ -60,6 +66,7 @@
     private KanbanStatus[] statusValues = Enum.GetValues<KanbanStatus>();
     private bool showCreateDialog = false;
     private string newTaskTitle = "";
+    private string newTaskDesc = "";
 
     // JSON options to handle enum string conversion
     private readonly JsonSerializerOptions jsonOptions = new()
@@ -90,6 +97,7 @@
         if (!showCreateDialog)
         {
             newTaskTitle = "";
+            newTaskDesc = "";
         }
     }
 
@@ -100,13 +108,14 @@
 
         try
         {
-            var newTask = new KanbanTask { Title = newTaskTitle, Status = KanbanStatus.Todo };
+            var newTask = new KanbanTask { Title = newTaskTitle, Description = newTaskDesc, Status = KanbanStatus.Todo };
             
             var response = await Http.PostAsJsonAsync("api/kanbantasks", newTask, jsonOptions);
 
             if (response.IsSuccessStatusCode)
             {
                 newTaskTitle = "";
+                newTaskDesc = "";
                 showCreateDialog = false;
                 await LoadTasks();
             }
@@ -125,7 +134,7 @@
 
     private async Task UpdateTaskStatus(KanbanTask task, KanbanStatus newStatus)
     {
-        var updated = new KanbanTask { Id = task.Id, Title = task.Title, Status = newStatus };
+        var updated = new KanbanTask { Id = task.Id, Title = task.Title, Description = task.Description, Status = newStatus };
         var response = await Http.PutAsJsonAsync($"api/kanbantasks/{task.Id}", updated, jsonOptions);
 
         if (response.IsSuccessStatusCode)

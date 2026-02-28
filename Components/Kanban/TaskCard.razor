@@ -8,7 +8,10 @@
                 Variant="Variant.Text" Size="ButtonSize.Small"
                 Click="@(async () => await OnDelete.InvokeAsync())" />
     </div>
-    <div class="task-content">
+        <div class="task-content">      
+            <span class="task-desc">@Task.Description</span>
+        </div>
+    <div>   
         <div class="task-actions">
             <RadzenButton Icon="arrow_back" Size="ButtonSize.Small"
                 Click="@MoveToPreviousStatus"

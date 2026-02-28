@@ -1,15 +1,24 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace KanbanBoard.Models;
 
 public class KanbanTask
 {
     public int Id { get; set; }
+
+    [Required(ErrorMessage = "TITLE_REQUIRED")]
     public string Title { get; set; } = "";
+
+    public string Description { get; set; } = "";
+
+    [Required]
     public KanbanStatus Status { get; set; } = KanbanStatus.Todo;
 
-    public KanbanTask(int id, string title, KanbanStatus status)
+    public KanbanTask(int id, string title, string description, KanbanStatus status)
     {
         Id = id;
         Title = title;
+        Description = description;
         Status = status;
     }
 
@@ -17,12 +26,13 @@ public class KanbanTask
     {
         Id = task.Id;
         Title = task.Title;
+        Description = task.Description;
         Status = task.Status;
     }
-    //The api will set the Id's itself
-    public KanbanTask(string title, KanbanStatus status)
+    public KanbanTask(string title, string description, KanbanStatus status)
     {
         Title = title;
+        Description = description;
         Status = status;
     }
 

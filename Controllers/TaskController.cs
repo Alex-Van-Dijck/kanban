@@ -31,6 +31,11 @@ namespace KanbanBoard.Controllers
         [HttpPost]
         public ActionResult<KanbanTask> CreateKanbanTask(KanbanTask task)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             _context.Tasks.Add(task);
             _context.SaveChanges();
             return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
@@ -39,6 +44,11 @@ namespace KanbanBoard.Controllers
         [HttpPut("{id}")]
         public IActionResult PutTask(int id, [FromBody] KanbanTask task)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var foundTask = _context.Tasks.FirstOrDefault(t => t.Id == id);
             if (foundTask == null)
             {
@@ -47,6 +57,7 @@ namespace KanbanBoard.Controllers
 
             foundTask.Title = task.Title;
             foundTask.Status = task.Status;
+            foundTask.Description = task.Description;
             _context.SaveChanges();
 
             return NoContent();
