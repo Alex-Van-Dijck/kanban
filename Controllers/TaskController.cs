@@ -14,9 +14,16 @@ namespace KanbanBoard.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<KanbanTask>> GetAllTasks()
+        public ActionResult<IEnumerable<KanbanTask>> GetAllTasks([FromQuery] int? userId = null)
         {
-            return Ok(_context.Tasks.ToList());
+            IQueryable<KanbanTask> query = _context.Tasks;
+
+            if (userId.HasValue)
+            {
+                query = query.Where(t => t.UserId == userId.Value);
+            }
+
+            return Ok(query.ToList());
         }
 
         [HttpGet("{id}")]
@@ -58,6 +65,7 @@ namespace KanbanBoard.Controllers
             foundTask.Title = task.Title;
             foundTask.Status = task.Status;
             foundTask.Description = task.Description;
+            foundTask.UserId = task.UserId;
             _context.SaveChanges();
 
             return NoContent();
