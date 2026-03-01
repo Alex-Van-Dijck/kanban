@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KanbanBoard.Models;
 
 public class KanbanTask
 {
+    [Key]
     public int Id { get; set; }
 
     [Required(ErrorMessage = "TITLE_REQUIRED")]
@@ -14,28 +16,13 @@ public class KanbanTask
     [Required]
     public KanbanStatus Status { get; set; } = KanbanStatus.Todo;
 
-    public KanbanTask(int id, string title, string description, KanbanStatus status)
-    {
-        Id = id;
-        Title = title;
-        Description = description;
-        Status = status;
-    }
+    [Required]
+    [ForeignKey("User")]
+    public int UserId { get; set; }
+    [Required]
+    public User User { get; set; } = null!;
 
-    public KanbanTask(KanbanTask task)
-    {
-        Id = task.Id;
-        Title = task.Title;
-        Description = task.Description;
-        Status = task.Status;
-    }
-    public KanbanTask(string title, string description, KanbanStatus status)
-    {
-        Title = title;
-        Description = description;
-        Status = status;
-    }
-
+    // JSON deserializer creates empty objects, then sets everything
     public KanbanTask()
     {
     }

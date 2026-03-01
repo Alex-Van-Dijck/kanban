@@ -4,6 +4,8 @@ using KanbanBoard.Models;
 public class TaskContext : DbContext
 {
     public DbSet<KanbanTask> Tasks { get; set; }
+    public DbSet<User> Users { get; set; }
+
 
     public string DbPath { get; }
 
@@ -20,5 +22,15 @@ public class TaskContext : DbContext
     {
         modelBuilder.Entity<KanbanTask>()
             .HasKey(t => t.Id);
+
+        modelBuilder.Entity<User>()
+           .HasKey(u => u.Id);
+
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Tasks)
+            .WithOne(t => t.User)
+            .HasForeignKey(t => t.UserId)
+            .HasPrincipalKey(u => u.Id)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

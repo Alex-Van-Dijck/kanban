@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KanbanBoard.Migrations
 {
     [DbContext(typeof(TaskContext))]
-    [Migration("20260228160238_add_description")]
-    partial class add_description
+    [Migration("20260301104701_AddUserModel")]
+    partial class AddUserModel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,9 +35,45 @@ namespace KanbanBoard.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Tasks");
+                });
+
+            modelBuilder.Entity("KanbanBoard.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("KanbanBoard.Models.KanbanTask", b =>
+                {
+                    b.HasOne("KanbanBoard.Models.User", "User")
+                        .WithMany("Tasks")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("KanbanBoard.Models.User", b =>
+                {
+                    b.Navigation("Tasks");
                 });
 #pragma warning restore 612, 618
         }
